@@ -54,7 +54,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         return liveState
     }
 
-    private fun Observable<I>.toResult(): Flowable<Result<*, I>> {
+    fun Observable<I>.toResult(): Flowable<Result<*, I>> {
         return observeOn(Schedulers.computation())
                 .toFlowable(BackpressureStrategy.BUFFER)
                 .concatMap { intent: I ->
@@ -67,7 +67,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 }.share()
     }
 
-    private fun stateStream(results: Flowable<Result<R, I>>, initialState: S): Flowable<PState<S, I>> {
+    fun stateStream(results: Flowable<Result<R, I>>, initialState: S): Flowable<PState<S, I>> {
         return results.filter { it is SuccessResult }
                 .map { it as SuccessResult }
                 .scan(SuccessState(initialState, null) as PState<S, I>, stateReducer())
@@ -81,7 +81,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 }.compose(ReplayingShare.instance())
     }
 
-    private fun effectStream(results: Flowable<Result<E, I>>): Flowable<PEffect<E?, I>> {
+    fun effectStream(results: Flowable<Result<E, I>>): Flowable<PEffect<E?, I>> {
         return results.filter { it is EffectResult }
                 .map { it as EffectResult }
                 .scan(InitialSuccessEffect as PEffect<E?, I>, effectReducer())
